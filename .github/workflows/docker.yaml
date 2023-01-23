@@ -14,8 +14,14 @@ jobs:
         run: |
           IMAGE_NAME=$(echo ${{ github.repository }} | cut -f2 -d'/')
           docker build -t $IMAGE_NAME .
+
       - name: Log in to registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Push image
         run: |
           VERSION=$(git rev-parse --short "$GITHUB_SHA")
