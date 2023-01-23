@@ -99,11 +99,20 @@ struct VerifyPaymentArgs {
 async fn verify_payment(mut db: Connection<Db>, args: Json<VerifyPaymentArgs>, payment: &PaymentState, runner: &RunnerState)
     -> Json<RequestResult>
 {
-    let (names, amount) = try_in_request!(db_find_name(&mut db, &args.authority).await);
-    try_in_request!(payment.verify(&args.authority, amount).await);
+    let (names, amount) = try_in_request!(
+        db_find_name(&mut db, &args.authority).await
+            .map_err(|e| format!("cannot find authority in db: {e}"))
+    );
+    try_in_request!(
+        payment.verify(&args.authority, amount).await
+            .map_err(|e| format!("cannot verify payment: {e}"))
+    );
 
     for name in names.split(",") {
-        try_in_request!(runner.make_client_paid(name).await);
+        try_in_request!(
+            runner.make_client_paid(name).await
+                .map_err(|e| format!("CRITICAL: runner failed on names '{names}': {e}"))
+        )
     }
 
     Json(RequestResult { success: true, message: String::new() })
