@@ -1,0 +1,15 @@
+version: "3.4"
+
+services:
+  manjaliof-backend:
+    image: ghcr.io/arian8j2/manjaliof-backend
+    container_name: manjaliof-backend
+    environment:
+      - ZARINPAL_MERCHANT_ID=merchan_tid
+      - MANJALIOF_TOKEN=secret_token
+      - MANJALIOF_DATA=path_to_manjaliof_data
+    volumes:
+      - /bin/manjaliof:/bin/manjaliof
+      - ./manjaliof-data/:/path/to/manjaliof/data
+      - ./manjaliof-backend:/app/data
+    restart: unless-stopped

@@ -1,0 +1,27 @@
+name: docker build & push to registry
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build Image
+        run: |
+          IMAGE_NAME=$(echo ${{ github.repository }} | cut -f2 -d'/')
+          docker build -t $IMAGE_NAME .
+      - name: Log in to registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+      - name: Push image
+        run: |
+          VERSION=$(git rev-parse --short "$GITHUB_SHA")
+          IMAGE_NAME=$(echo ${{ github.repository }} | cut -f2 -d'/')
+          IMAGE_ID=$(echo "ghcr.io/${{ github.repository }}" | tr "[A-Z]" "[a-z]")
+          docker tag $IMAGE_NAME $IMAGE_ID:${{ github.ref_name }}-$VERSION
+          docker tag $IMAGE_NAME $IMAGE_ID:latest
+          docker push $IMAGE_ID --all-tags
+
