@@ -27,9 +27,8 @@ impl Manjaliof {
 
 #[async_trait]
 impl Runner for Manjaliof {
-    async fn validate_clients(&self, names: &Vec<String>, reffer: &str) -> Result<(), String> {
+    async fn validate_clients(&self, names: &Vec<String>) -> Result<(), String> {
         let mut valid_clients = 0;
-        let reffer_pattern = format!("-{reffer}");
 
         let list = self.run_command(&["list", "--trim-whitespace"]).await?;
         for line in list.lines() {
@@ -37,7 +36,7 @@ impl Runner for Manjaliof {
             let name = chunks.get(0).unwrap();
             let info = chunks.get(3).unwrap();
 
-            if name.find(&reffer_pattern).is_some() && names.contains(&name.to_string()) {
+            if names.contains(&name.to_string()) {
                 if !info.starts_with("NOTPAID") {
                     return Err(format!("client '{name}' is not notpaid, it's '{info}'"));
                 }

@@ -49,12 +49,6 @@ where
     ])
 }
 
-#[derive(Deserialize)]
-#[serde(crate = "rocket::serde")]
-struct CreatePaymentArgs {
-    clients: Vec<String>
-}
-
 #[derive(Serialize)]
 #[serde(crate = "rocket::serde")]
 struct RequestResult {
@@ -62,12 +56,22 @@ struct RequestResult {
     message: String
 }
 
+#[derive(Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct CreatePaymentArgs {
+    clients: Vec<String>
+}
+
 #[post("/create_payment", data = "<args>")]
-async fn create_payment(token: Token, mut db: Connection<Db>, args: Json<CreatePaymentArgs>, payment: &PaymentState, runner: &RunnerState)
+async fn create_payment(_token: Token, mut db: Connection<Db>, args: Json<CreatePaymentArgs>, payment: &PaymentState, runner: &RunnerState)
     -> Json<RequestResult>
 {
+    if args.clients.is_empty() {
+        return Json(RequestResult { success: false, message: "at least provide one client".to_string() });
+    }
+
     try_in_request!(
-        runner.validate_clients(&args.clients, &token.reffer_name).await
+        runner.validate_clients(&args.clients).await
             .map_err(|e| format!("cannot validate clients: {e}"))
     );
 
