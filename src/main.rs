@@ -5,6 +5,7 @@ mod payment;
 mod runner;
 mod db;
 mod token;
+mod cors;
 #[cfg(test)] mod tests;
 
 use rocket::{serde::{Deserialize, Serialize, json::Json}, Build, State};
@@ -12,6 +13,7 @@ use rocket_db_pools::Connection;
 use payment::{Payment, zarinpal::Zarinpal};
 use runner::{Runner, manjaliof::Manjaliof};
 use db::{Db, db_add_transaction, db_find_name};
+use cors::Cors;
 use token::Token;
 use std::sync::Arc;
 
@@ -43,7 +45,7 @@ where
     let shared_payment: Arc<dyn Payment> = Arc::new(payment);
     let shared_runner: Arc<dyn Runner> = Arc::new(runner);
     let db = Db::new();
-    rocket::build().attach(db).manage(shared_payment).manage(shared_runner).mount("/", routes![
+    rocket::build().attach(db).attach(Cors).manage(shared_payment).manage(shared_runner).mount("/", routes![
        create_payment,
        verify_payment
     ])
