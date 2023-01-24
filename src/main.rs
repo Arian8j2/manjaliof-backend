@@ -21,7 +21,10 @@ macro_rules! try_in_request {
     ($expr:expr) => {
         match $expr {
             Ok(smth) => smth,
-            Err(error) => return Json(RequestResult { success: false, message: error })
+            Err(error) => {
+                eprintln!("ERROR: {error}");
+                return Json(RequestResult { success: false, message: error })
+            }
         }
     };
 }
