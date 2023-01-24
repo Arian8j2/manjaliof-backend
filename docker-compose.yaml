@@ -6,7 +6,7 @@ services:
     container_name: manjaliof-backend
     environment:
       - ZARINPAL_MERCHANT_ID=merchant_id
-      - MANJALIOF_TOKEN=secret_token
+      - MANJALIOF_BACKEND_TOKEN=secret_token
       - MANJALIOF_DATA=path_to_manjaliof_data
     volumes:
       - /bin/manjaliof:/bin/manjaliof
