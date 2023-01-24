@@ -53,7 +53,7 @@ impl Runner for Manjaliof {
     }
 
     async fn make_client_paid(&self, name: &str) -> Result<(), String> {
-        self.run_command(&["set-info", "--name", name, "--info", "PAID"]).await?;
+        self.run_command(&["set-info", "--name", name, "--info", "HOSSOBBEED (site)"]).await?;
         Ok(())
     }
 }
