@@ -30,7 +30,7 @@ pub struct ZarinpalVerifyPaymentResultData {
     pub message: String,
     pub card_hash: String,
     pub card_pan: String,
-    pub ref_id: String,
+    pub ref_id: u64,
     pub fee_type: String,
     pub fee: u32
 }
