@@ -45,13 +45,14 @@ where
     T: Payment,
     R: Runner
 {
+    let db = Db::new();
     let shared_payment: Arc<dyn Payment> = Arc::new(payment);
     let shared_runner: Arc<dyn Runner> = Arc::new(runner);
-    let db = Db::new();
-    rocket::build().attach(db).attach(Cors).manage(shared_payment).manage(shared_runner).mount("/", routes![
-       create_payment,
-       verify_payment
-    ])
+    rocket::build().attach(db).attach(Cors).manage(shared_payment)
+        .manage(shared_runner).mount("/", routes![
+           create_payment,
+           verify_payment
+        ])
 }
 
 #[derive(Serialize)]

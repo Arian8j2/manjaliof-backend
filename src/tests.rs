@@ -1,21 +1,29 @@
-use super::rocket;
+use super::{rocket, payment::MockPayment, runner::MockRunner, Db};
 use rocket::{local::blocking::Client, http::{Status, Header}};
-use super::payment::MockPayment;
-use super::runner::MockRunner;
-use std::env;
+use rocket_db_pools::{Database, sqlx::Executor};
 use mockall::predicate::{eq, always};
 
 fn run_test<T>(test: T) -> ()
 where
     T: FnOnce(MockPayment, MockRunner) -> (),
 {
+    use std::env;
     if env::var("MANJALIOF_BACKEND_TOKEN").is_err() {
         env::set_var("MANJALIOF_BACKEND_TOKEN", "somestrongtoken");
     }
-
+    
+    reset_db();
     let payment = MockPayment::new();
     let runner = MockRunner::new();
     test(payment, runner);
+}
+
+fn reset_db() {
+    let client = Client::untracked(rocket(MockPayment::new(), MockRunner::new())).unwrap();
+    let db = Db::fetch(client.rocket()).unwrap();
+    rocket::async_test(async move {
+        db.execute("DELETE FROM transactions").await.unwrap();
+    });
 }
 
 #[test]
@@ -101,4 +109,37 @@ fn generate_random_authority() -> String {
     let random_number: String = rand::random::<u32>().to_string();
     let zeros = "0".repeat(35 - random_number.len());
     format!("A{zeros}{random_number}")
+}
+
+#[test]
+fn create_and_verify_payment() {
+    run_test(|mut payment, mut runner| {
+        runner.expect_validate_clients().with(eq(vec!["someone".to_string(), "anotherone".to_string()]))
+            .times(1).returning(|_| Ok(()));
+
+        payment.expect_request_payment_authority().with(eq("someone,anotherone"), always())
+            .times(1).returning(move |_, _|  Ok("generated_authority".to_string()));
+
+        let client = Client::untracked(rocket(payment, runner)).unwrap();
+        let req = client.post("/create_payment").header(Header::new("auth_token", "somestrongtoken"));
+        let res = req.body(r#"{ "clients": ["someone", "anotherone"] }"#).dispatch();
+        assert_eq!(res.status(), Status::Ok);
+        assert_eq!(res.into_string().unwrap(), r#"{"success":true,"message":"generated_authority"}"#);
+
+
+        let mut payment = MockPayment::new();
+        payment.expect_verify().with(eq("generated_authority"), always())
+            .times(1).returning(|_, _| Ok(()));
+
+        let mut runner = MockRunner::new();
+        runner.expect_make_client_paid().with(eq("someone"))
+            .times(1).returning(|_| Ok(()));
+        runner.expect_make_client_paid().with(eq("anotherone"))
+            .times(1).returning(|_| Ok(()));
+
+        let client = Client::untracked(rocket(payment, runner)).unwrap();
+        let res = client.post("/verify_payment").body(r#"{ "authority": "generated_authority"}"#).dispatch();
+        assert_eq!(res.status(), Status::Ok);
+        assert_eq!(res.into_string().unwrap(), r#"{"success":true,"message":""}"#);
+    });
 }
