@@ -89,12 +89,9 @@ async fn create_payment(
     payment: &PaymentState,
     runner: &RunnerState,
 ) -> Json<RequestResult> {
-    if args.clients.is_empty() {
-        return Json(RequestResult {
-            success: false,
-            message: "at least provide one client".to_string(),
-        });
-    }
+    try_in_request!((!args.clients.is_empty())
+        .then_some(())
+        .ok_or("at least provide one client".to_string()));
 
     try_in_request!(runner
         .validate_clients(&args.clients)
