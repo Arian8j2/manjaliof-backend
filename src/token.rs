@@ -1,5 +1,8 @@
-use rocket::{request::{FromRequest, Outcome, Request}, http::Status};
 use async_trait::async_trait;
+use rocket::{
+    http::Status,
+    request::{FromRequest, Outcome, Request},
+};
 use std::env;
 
 lazy_static! {
@@ -23,9 +26,8 @@ impl<'r> FromRequest<'r> for Token {
                 } else {
                     Outcome::Failure((Status::Unauthorized, "unauthorized token"))
                 }
-            },
-            None => Outcome::Failure((Status::Unauthorized, "no token"))
+            }
+            None => Outcome::Failure((Status::Unauthorized, "no token")),
         }
     }
 }
-

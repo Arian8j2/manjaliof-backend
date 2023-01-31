@@ -1,5 +1,5 @@
-use serde::{Serialize, Deserialize};
-use super::{ZARINPAL_MERCHANT_ID, code::ZarinpalCode};
+use super::{code::ZarinpalCode, ZARINPAL_MERCHANT_ID};
+use serde::{Deserialize, Serialize};
 
 const CALLBACK_URL: &str = "https://manjaliof.ts22.ir/verify";
 
@@ -8,7 +8,7 @@ pub struct ZarinpalRequestPayment {
     merchant_id: String,
     amount: u32,
     callback_url: &'static str,
-    description: String
+    description: String,
 }
 
 impl ZarinpalRequestPayment {
@@ -17,7 +17,7 @@ impl ZarinpalRequestPayment {
             merchant_id: ZARINPAL_MERCHANT_ID.clone(),
             amount,
             callback_url: CALLBACK_URL,
-            description
+            description,
         }
     }
 }
@@ -25,7 +25,7 @@ impl ZarinpalRequestPayment {
 #[derive(Serialize, Deserialize)]
 pub struct ZarinpalRequestPaymentResult {
     pub data: ZarinpalRequestPaymentResultData,
-    pub errors: Vec<String>
+    pub errors: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -34,5 +34,5 @@ pub struct ZarinpalRequestPaymentResultData {
     pub message: String,
     pub authority: String,
     pub fee_type: String,
-    pub fee: u32
+    pub fee: u32,
 }

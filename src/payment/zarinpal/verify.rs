@@ -1,11 +1,11 @@
-use serde::{Serialize, Deserialize};
-use super::{ZARINPAL_MERCHANT_ID, code::ZarinpalCode};
+use super::{code::ZarinpalCode, ZARINPAL_MERCHANT_ID};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct ZarinpalVerifyPayment {
     merchant_id: String,
     amount: u32,
-    authority: String
+    authority: String,
 }
 
 impl ZarinpalVerifyPayment {
@@ -13,7 +13,7 @@ impl ZarinpalVerifyPayment {
         ZarinpalVerifyPayment {
             merchant_id: ZARINPAL_MERCHANT_ID.clone(),
             amount,
-            authority
+            authority,
         }
     }
 }
@@ -21,7 +21,7 @@ impl ZarinpalVerifyPayment {
 #[derive(Serialize, Deserialize)]
 pub struct ZarinpalVerifyPaymentResult {
     pub data: ZarinpalVerifyPaymentResultData,
-    pub errors: Vec<String>
+    pub errors: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -32,5 +32,5 @@ pub struct ZarinpalVerifyPaymentResultData {
     pub card_pan: String,
     pub ref_id: u64,
     pub fee_type: String,
-    pub fee: u32
+    pub fee: u32,
 }

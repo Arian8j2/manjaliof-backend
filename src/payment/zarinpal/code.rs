@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 macro_rules! s {
     ($str:expr) => {
@@ -12,7 +12,7 @@ pub struct ZarinpalCode(i32);
 impl std::string::ToString for ZarinpalCode {
     fn to_string(&self) -> String {
         match self.0 {
-            -9  => s!("خطای اعتبار سنجی"),
+            -9 => s!("خطای اعتبار سنجی"),
             -10 => s!("ای پی و يا مرچنت كد پذيرنده صحيح نيست"),
             -11 => s!("مرچنت کد فعال نیست لطفا با تیم پشتیبانی ما تماس بگیرید"),
             -12 => s!("تلاش بیش از حد در یک بازه زمانی کوتاه."),
@@ -32,7 +32,7 @@ impl std::string::ToString for ZarinpalCode {
             -53 => s!("اتوریتی برای این مرچنت کد نیست"),
             -54 => s!("اتوریتی نامعتبر است"),
             101 => s!("تراکنش وریفای شده"),
-            _   => s!("Unknown error")
+            _ => s!("Unknown error"),
         }
     }
 }

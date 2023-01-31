@@ -1,20 +1,25 @@
 use super::Runner;
-use tokio::process::Command;
 use std::ffi::OsStr;
+use tokio::process::Command;
 
-pub struct Manjaliof { }
+pub struct Manjaliof {}
 
 impl Manjaliof {
     pub fn new() -> Self {
-        Manjaliof { }
+        Manjaliof {}
     }
 
     async fn run_command<S, T>(&self, args: T) -> Result<String, String>
     where
         T: IntoIterator<Item = S>,
-        S: AsRef<OsStr>
+        S: AsRef<OsStr>,
     {
-        let output = Command::new("manjaliof").args(args).output().await.map_err(|e| e.to_string())?;
+        let output = Command::new("manjaliof")
+            .args(args)
+            .output()
+            .await
+            .map_err(|e| e.to_string())?;
+
         if output.status.success() {
             let stdout_output = String::from_utf8(output.stdout).unwrap();
             Ok(stdout_output)
@@ -53,7 +58,8 @@ impl Runner for Manjaliof {
     }
 
     async fn make_client_paid(&self, name: &str) -> Result<(), String> {
-        self.run_command(&["set-info", "--name", name, "--info", "HOSSOBBEED (site)"]).await?;
+        self.run_command(&["set-info", "--name", name, "--info", "HOSSOBBEED (site)"])
+            .await?;
         Ok(())
     }
 }
