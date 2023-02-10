@@ -99,8 +99,6 @@ async fn create_payment(
         .map_err(|e| format!("cannot validate clients: {e}")));
 
     let price = args.clients.len() as u32 * 55 * 10000;
-    let price = price + calculate_tax(price);
-
     let names = args.clients.join(",");
     let authority = try_in_request!(payment
         .request_payment_authority(&names, price)
@@ -114,12 +112,6 @@ async fn create_payment(
         success: true,
         message: authority,
     })
-}
-
-fn calculate_tax(price: u32) -> u32 {
-    let tax = price as f32 / 100.0;
-    let tax = tax + (tax / 100.0);
-    tax.round() as u32
 }
 
 #[derive(Deserialize)]
